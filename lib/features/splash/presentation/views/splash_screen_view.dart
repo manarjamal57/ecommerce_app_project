@@ -36,7 +36,7 @@ class SplashScreenView extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.only(left: 15, right: 15, bottom: 50),
               child: Column(
-                                mainAxisSize: MainAxisSize.min,
+             mainAxisSize: MainAxisSize.min,
 
            children: [
            CustomButton(

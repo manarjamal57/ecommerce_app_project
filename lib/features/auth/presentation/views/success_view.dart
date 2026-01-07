@@ -1,3 +1,4 @@
+import 'package:ecommerce_app_project/features/home/presentation/views/main_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:ecommerce_app_project/features/home/presentation/views/home_view.dart';
 
@@ -62,7 +63,7 @@ class SuccessView extends StatelessWidget {
                   onPressed: () {
                     Navigator.pushReplacementNamed(
                       context,
-                      HomeView.routeName,
+                     MainLayout.routeName
                     );
                   },
                   style: ElevatedButton.styleFrom(

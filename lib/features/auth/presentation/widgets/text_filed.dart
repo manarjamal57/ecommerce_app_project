@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 
-class AuthField extends StatelessWidget {
-  const AuthField({
+class TextFromField extends StatelessWidget {
+  const TextFromField({
     super.key,
     required this.controller,
     this.obscureText = false,
     this.suffixIcon,
     this.onSuffixTap,
+    this.validator,
+    this.keyboardType,
+    this.textInputAction,
   });
 
   final TextEditingController controller;
@@ -14,11 +17,18 @@ class AuthField extends StatelessWidget {
   final Widget? suffixIcon;
   final VoidCallback? onSuffixTap;
 
+  final String? Function(String?)? validator;
+  final TextInputType? keyboardType;
+  final TextInputAction? textInputAction;
+
   @override
   Widget build(BuildContext context) {
-    return TextField(
+    return TextFormField(
       controller: controller,
       obscureText: obscureText,
+      validator: validator,
+      keyboardType: keyboardType,
+      textInputAction: textInputAction,
       style: const TextStyle(
         fontSize: 14,
         fontWeight: FontWeight.w600,
@@ -26,7 +36,8 @@ class AuthField extends StatelessWidget {
       ),
       decoration: InputDecoration(
         isDense: true,
-        contentPadding: const EdgeInsets.symmetric(vertical: 10),
+        contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 2),
+
         border: const UnderlineInputBorder(),
         enabledBorder: UnderlineInputBorder(
           borderSide: BorderSide(color: Colors.black.withOpacity(0.08)),
