@@ -1,5 +1,15 @@
 import 'package:ecommerce_app_project/features/alerts/presentation/views/notifications_view.dart';
 import 'package:ecommerce_app_project/features/cart/presentation/views/cart_views.dart';
+import 'package:ecommerce_app_project/features/profile/presentation/views/PrivacyPolicyView';
+import 'package:ecommerce_app_project/features/profile/presentation/views/faqs_view.dart';
+import 'package:ecommerce_app_project/features/profile/presentation/views/favorites_view.dart';
+import 'package:ecommerce_app_project/features/profile/presentation/views/my_card_view.dart';
+import 'package:ecommerce_app_project/features/profile/presentation/views/my_orders_view.dart';
+import 'package:ecommerce_app_project/features/profile/presentation/views/personal_details_view.dart';
+
+import 'package:ecommerce_app_project/features/profile/presentation/views/profile_view.dart';
+import 'package:ecommerce_app_project/features/profile/presentation/views/settings_view.dart';
+import 'package:ecommerce_app_project/features/profile/presentation/views/shipping_address_view.dart';
 import 'package:flutter/material.dart';
 
 import 'package:ecommerce_app_project/features/home/presentation/views/main_layout.dart';
@@ -87,6 +97,34 @@ Route<dynamic> onGenerateRoute(RouteSettings settings) {
   return MaterialPageRoute(builder: (_) => const MyCartView());
   case NotificationsView.routeName:
   return MaterialPageRoute(builder: (_) => const NotificationsView());
+// ✅ البروفايل (إذا بدك تفتحيه كـ Route — اختياري)
+case ProfileView.routeName:
+  return MaterialPageRoute(builder: (_) => const ProfileView());
+
+// صفحات البروفايل الفرعية (تفتح فوق الشريط)
+case PersonalDetailsView.routeName:
+  return MaterialPageRoute(builder: (_) => const PersonalDetailsView());
+
+case MyOrdersView.routeName:
+  return MaterialPageRoute(builder: (_) => const MyOrdersView());
+
+case FavouritesView.routeName:
+  return MaterialPageRoute(builder: (_) => const FavouritesView());
+
+case ShippingAddressView.routeName:
+  return MaterialPageRoute(builder: (_) => const ShippingAddressView());
+
+case MyCardsView.routeName:
+  return MaterialPageRoute(builder: (_) => const MyCardsView());
+
+case SettingsView.routeName:
+  return MaterialPageRoute(builder: (_) => const SettingsView());
+
+case FaqsView.routeName:
+  return MaterialPageRoute(builder: (_) => const FaqsView());
+
+case PrivacyPolicyView.routeName:
+  return MaterialPageRoute(builder: (_) => const PrivacyPolicyView());
 
     default:
       return MaterialPageRoute(
