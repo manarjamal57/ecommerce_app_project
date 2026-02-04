@@ -1,11 +1,14 @@
 import 'package:ecommerce_app_project/features/cart/presentation/views/cart_views.dart';
 import 'package:ecommerce_app_project/features/products/presentation/views/reviews_view.dart';
+import 'package:ecommerce_app_project/features/profile/presentation/views/favs_store.dart';
 import 'package:flutter/material.dart';
 import '../../domain/entities/product_entity.dart';
 
-// ✅ NEW IMPORTS (Cart)
+// ✅ Cart Provider
 import 'package:provider/provider.dart';
 import 'package:ecommerce_app_project/features/cart/presentation/cart_provider.dart';
+
+// ✅ FAVS STORE
 
 class ProductDetailsView extends StatefulWidget {
   const ProductDetailsView({super.key, required this.product});
@@ -81,11 +84,10 @@ class _ProductDetailsViewState extends State<ProductDetailsView> {
     );
   }
 
-  // ✅ NEW: Add to cart logic (supports qty + snackbar)
+  // ✅ Add to cart logic (supports qty + snackbar)
   void _addToCart(ProductEntity p) {
     final cart = context.read<CartProvider>();
 
-    // add same product _qty times
     for (int i = 0; i < _qty; i++) {
       cart.addToCart(
         productId: p.id,
@@ -108,6 +110,55 @@ class _ProductDetailsViewState extends State<ProductDetailsView> {
       ),
     );
   }
+
+  // ===================== ✅ FAV HELPERS =====================
+
+  Map<String, String> _favMap(ProductEntity p) => {
+        'id': p.id,
+        'title': p.title,
+        'subtitle': p.subtitle,
+        'price': '\$${p.price.toStringAsFixed(0)}',
+        'image': p.image,
+      };
+
+  bool _isFav(ProductEntity p) {
+    final current = favsNotifier.value;
+    return current.any((e) => e['id'] == p.id);
+  }
+
+  void _toggleFav(ProductEntity p) {
+    final current = List<Map<String, String>>.from(favsNotifier.value);
+    final existsIndex = current.indexWhere((e) => e['id'] == p.id);
+
+    if (existsIndex >= 0) {
+      current.removeAt(existsIndex);
+      favsNotifier.value = current;
+
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Removed from favourites 💔'),
+          duration: Duration(seconds: 1),
+        ),
+      );
+    } else {
+      current.add(_favMap(p));
+      favsNotifier.value = current;
+
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Added to favourites ❤️'),
+          duration: Duration(seconds: 1),
+        ),
+      );
+    }
+
+    // لتحديث شكل القلب فوراً داخل الصفحة
+    setState(() {});
+  }
+
+  // ===========================================================
 
   @override
   Widget build(BuildContext context) {
@@ -186,8 +237,7 @@ class _ProductDetailsViewState extends State<ProductDetailsView> {
                               _images.length,
                               (i) => AnimatedContainer(
                                 duration: const Duration(milliseconds: 200),
-                                margin:
-                                    const EdgeInsets.symmetric(horizontal: 3),
+                                margin: const EdgeInsets.symmetric(horizontal: 3),
                                 width: i == _active ? 18 : 6,
                                 height: 6,
                                 decoration: BoxDecoration(
@@ -202,7 +252,7 @@ class _ProductDetailsViewState extends State<ProductDetailsView> {
                         ),
                       ),
 
-                      // ❤️ Favorite
+                      // ❤️ Favorite (✅ UPDATED)
                       Positioned(
                         right: 10,
                         bottom: 70,
@@ -212,13 +262,18 @@ class _ProductDetailsViewState extends State<ProductDetailsView> {
                           elevation: 6,
                           child: InkWell(
                             borderRadius: BorderRadius.circular(24),
-                            onTap: () {},
-                            child: const SizedBox(
+                            onTap: () => _toggleFav(p),
+                            child: SizedBox(
                               width: 35,
                               height: 35,
                               child: Center(
-                                child: Icon(Icons.favorite_border_rounded,
-                                    size: 18),
+                                child: Icon(
+                                  _isFav(p)
+                                      ? Icons.favorite_rounded
+                                      : Icons.favorite_border_rounded,
+                                  size: 18,
+                                  color: _isFav(p) ? Colors.red : Colors.black,
+                                ),
                               ),
                             ),
                           ),
@@ -346,39 +401,29 @@ class _ProductDetailsViewState extends State<ProductDetailsView> {
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                // Sizes
                                 Expanded(
                                   child: Wrap(
                                     spacing: 10,
                                     runSpacing: 10,
-                                    children:
-                                        List.generate(sizes.length, (i) {
+                                    children: List.generate(sizes.length, (i) {
                                       final selected = i == _selectedSizeIndex;
                                       return GestureDetector(
-                                        onTap: () => setState(
-                                            () => _selectedSizeIndex = i),
+                                        onTap: () => setState(() => _selectedSizeIndex = i),
                                         child: Container(
                                           width: 35,
                                           height: 35,
                                           alignment: Alignment.center,
                                           decoration: BoxDecoration(
-                                            color: selected
-                                                ? Colors.black
-                                                : Colors.transparent,
-                                            borderRadius:
-                                                BorderRadius.circular(999),
+                                            color: selected ? Colors.black : Colors.transparent,
+                                            borderRadius: BorderRadius.circular(999),
                                             border: Border.all(
-                                              color: selected
-                                                  ? Colors.black
-                                                  : const Color(0xFFE6E6E6),
+                                              color: selected ? Colors.black : const Color(0xFFE6E6E6),
                                             ),
                                           ),
                                           child: Text(
                                             sizes[i],
                                             style: TextStyle(
-                                              color: selected
-                                                  ? Colors.white
-                                                  : Colors.black54,
+                                              color: selected ? Colors.white : Colors.black54,
                                               fontWeight: FontWeight.w900,
                                             ),
                                           ),
@@ -387,21 +432,16 @@ class _ProductDetailsViewState extends State<ProductDetailsView> {
                                     }),
                                   ),
                                 ),
-
                                 const SizedBox(width: 12),
-
-                                // Color Dots
                                 Wrap(
                                   spacing: 15,
                                   runSpacing: 15,
-                                  children:
-                                      List.generate(_colors.length, (i) {
+                                  children: List.generate(_colors.length, (i) {
                                     final selected = i == _selectedColorIndex;
                                     final c = _colors[i];
 
                                     return GestureDetector(
-                                      onTap: () => setState(
-                                          () => _selectedColorIndex = i),
+                                      onTap: () => setState(() => _selectedColorIndex = i),
                                       child: Container(
                                         width: 25,
                                         height: 25,
@@ -409,9 +449,7 @@ class _ProductDetailsViewState extends State<ProductDetailsView> {
                                         decoration: BoxDecoration(
                                           shape: BoxShape.circle,
                                           border: Border.all(
-                                            color: selected
-                                                ? Colors.black
-                                                : const Color(0xFFE6E6E6),
+                                            color: selected ? Colors.black : const Color(0xFFE6E6E6),
                                             width: selected ? 2 : 1,
                                           ),
                                         ),
@@ -420,9 +458,7 @@ class _ProductDetailsViewState extends State<ProductDetailsView> {
                                             color: c,
                                             shape: BoxShape.circle,
                                             border: Border.all(
-                                              color: c == Colors.white
-                                                  ? const Color(0xFFE6E6E6)
-                                                  : Colors.transparent,
+                                              color: c == Colors.white ? const Color(0xFFE6E6E6) : Colors.transparent,
                                             ),
                                           ),
                                         ),
@@ -482,7 +518,6 @@ class _ProductDetailsViewState extends State<ProductDetailsView> {
                           SizedBox(
                             height: 40,
                             child: ElevatedButton.icon(
-                              // ✅ UPDATED
                               onPressed: () => _addToCart(p),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.white,
@@ -490,8 +525,7 @@ class _ProductDetailsViewState extends State<ProductDetailsView> {
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(999),
                                 ),
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 10),
+                                padding: const EdgeInsets.symmetric(horizontal: 10),
                               ),
                               icon: const Icon(
                                 Icons.shopping_bag_outlined,
@@ -596,8 +630,7 @@ class _TopPillIcon extends StatelessWidget {
 }
 
 class _QtySelector extends StatelessWidget {
-  const _QtySelector(
-      {required this.qty, required this.onMinus, required this.onPlus});
+  const _QtySelector({required this.qty, required this.onMinus, required this.onPlus});
   final int qty;
   final VoidCallback onMinus;
   final VoidCallback onPlus;
@@ -649,15 +682,12 @@ class _StarRow extends StatelessWidget {
     return Row(
       children: List.generate(5, (i) {
         if (i < full) {
-          return const Icon(Icons.star_rounded,
-              size: 16, color: Color(0xFFFFB800));
+          return const Icon(Icons.star_rounded, size: 16, color: Color(0xFFFFB800));
         }
         if (i == full && hasHalf) {
-          return const Icon(Icons.star_half_rounded,
-              size: 16, color: Color(0xFFFFB800));
+          return const Icon(Icons.star_half_rounded, size: 16, color: Color(0xFFFFB800));
         }
-        return const Icon(Icons.star_border_rounded,
-            size: 16, color: Color(0xFFFFB800));
+        return const Icon(Icons.star_border_rounded, size: 16, color: Color(0xFFFFB800));
       }),
     );
   }

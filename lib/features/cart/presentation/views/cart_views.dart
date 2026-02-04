@@ -1,7 +1,11 @@
+import 'package:ecommerce_app_project/features/cart/presentation/cart_provider.dart';
+import 'package:ecommerce_app_project/features/cart/presentation/views/checkout_screen.dart';
 import 'package:ecommerce_app_project/features/home/presentation/views/main_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../cart_provider.dart';
+
+
+// ✅ عدّلي المسار حسب مكان ملفك الحقيقي
 
 class MyCartView extends StatelessWidget {
   const MyCartView({super.key});
@@ -25,14 +29,13 @@ class MyCartView extends StatelessWidget {
                 children: [
                   _CircleBtn(
                     icon: Icons.arrow_back,
-                   onTap: () {
-  Navigator.pushNamedAndRemoveUntil(
-    context,
-    MainLayout.routeName,
-    (route) => false,
-  );
-},
-
+                    onTap: () {
+                      Navigator.pushNamedAndRemoveUntil(
+                        context,
+                        MainLayout.routeName,
+                        (route) => false,
+                      );
+                    },
                   ),
                   const SizedBox(width: 12),
                   const Text(
@@ -101,16 +104,40 @@ class MyCartView extends StatelessWidget {
                   onPressed: cart.items.isEmpty
                       ? null
                       : () {
-                          // حالياً UI فقط
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Checkout coming soon 🙂'),
+                          // ✅ Navigate to CheckoutScreen with real cart items
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => CheckoutScreen(
+                                items: cart.items
+                                    .map(
+                                      (e) => CartItemModel(
+                                        productId: e.productId,
+                                        name: e.title,
+                                        subtitle: e.subtitle,
+                                        imageUrl: e.imageUrl,
+                                        price: e.price,
+                                        qty: e.quantity,
+                                      ),
+                                    )
+                                    .toList(),
+                                // ✅ حالياً عنوان وهمي - لاحقاً بنجيبه من users
+                                address: AddressModel(
+                                  street: "3512 Pearl Street",
+                                  city: "Nagercoil",
+                                  state: "Tamil Nadu",
+                                  phone: "8870523416",
+                                  zip: "95814",
+                                  countryCode: "+91",
+                                  country: "India",
+                                ),
+                              ),
                             ),
                           );
                         },
                   child: const Text(
                     'Proceed to Checkout',
-                    style: TextStyle(fontWeight: FontWeight.w900,fontSize: 18),
+                    style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18),
                   ),
                 ),
               ),
@@ -277,7 +304,7 @@ class _SummaryBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final itemsText = '(${cart.itemsCount} item)'; // ✅ عدد المنتجات المختلفة
+    final itemsText = '(${cart.itemsCount} item)';
 
     return Container(
       padding: const EdgeInsets.all(14),
